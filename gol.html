@@ -1,0 +1,54 @@
+<html>
+ <head>
+  <script type="application/javascript">
+
+var game = {
+	config: {
+		running: false,
+
+	},
+	canvas: {
+		width:null,
+		height:null,
+		c:null,
+		ctx:null,
+		init:function(){
+			this.c = document.getElementById('canvas');
+			this.ctx = this.c.getContext('2d');
+			this.width = this.c.width;
+			this.height = this.c.height;
+		},
+
+		drawgrid:function(){
+			for (var x = 0.5; x < this.width; x += 10){
+				this.ctx.moveTo(x, 0);
+				this.ctx.lineTo(x, this.height);
+			}
+			for (var y = 0.5; y < this.height; y += 10){
+				this.ctx.moveTo(0, y);
+				this.ctx.lineTo(this.width, y);
+			}
+			this.ctx.strokeStyle = "blue"
+			this.ctx.stroke();
+		}
+	},
+
+	init: function() {
+		game.canvas.init();
+		game.canvas.drawgrid();
+	}
+}
+
+
+
+
+
+
+
+
+  </script>
+ </head>
+ <body onload="game.init();">
+   <canvas id="canvas" width="501" height="501"></canvas>
+ </body>
+</html>
