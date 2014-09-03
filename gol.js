@@ -5,6 +5,7 @@ var g = {
 
 config: {
 	running: false,
+	fps:5,
 	templates:{
 		dot:false,
 		glider:false
@@ -56,9 +57,9 @@ func:{
 
 	set_state: function(){
 		for (var x = 0; x < g.canvas.width -1; x += 10) {
-			for (var y = 0; y < g.canvas.height -1; y +=10) 
-			{
-				try {
+			for (var y = 0; y < g.canvas.height -1; y +=10) {
+				try 
+				{
 					if (g.grid[x][y].state) {
 						if (g.grid[x][y].neighbours < 2){
 							g.grid[x][y].state = false;
@@ -80,13 +81,11 @@ func:{
 							g.grid[x][y].state = false;
 							g.grid[x][y].age = 0;
 							}
-						}
 					}
-
-				catch (e) {}
+				} catch (e) {}
 			}
+		}
 	}
-}
 },
 
 
@@ -114,6 +113,18 @@ grid: {
 			}
 
 		}
+	},
+
+	update_grid:function(){
+	for (var x = 0; x < g.canvas.width -1; x += 10) {
+		for (var y = 0; y < g.canvas.height -1; y +=10) {
+			if (g.grid[x][y].state) {
+				g.canvas.ctx.fillRect(x, y, 10, 10)
+			} else {
+				g.canvas.ctx.clearRect(x, y, 10, 10)
+			}
+			}
+		}
 	}
 },
 
@@ -132,13 +143,13 @@ canvas: {
 	},
 
 	drawgrid:function(){
-		for (var x = 0.5; x < this.width; x += 10){
+		for (var x = 0.5; x < g.canvas.width-1; x += 10){
 			this.ctx.moveTo(x, 0);
-			this.ctx.lineTo(x, this.height);
+			this.ctx.lineTo(x, g.canvas.height);
 		}
-		for (var y = 0.5; y < this.height; y += 10){
+		for (var y = 0.5; y < g.canvas.height-1; y += 10){
 			this.ctx.moveTo(0, y);
-			this.ctx.lineTo(this.width, y);
+			this.ctx.lineTo(g.canvas.width, y);
 		}
 		this.ctx.strokeStyle = "black"
 		this.ctx.stroke();
@@ -153,17 +164,16 @@ init: function() {
 	g.func.check_template();
 	g.grid.init();
 	console.log(g.grid);
+	g._intervalId = setInterval(g.main, 1000 / g.config.fps);
 
-	g.main();
+	
 },
 
 main:function(){
-g.func.check_neighbours();
-g.func.set_state();
-}
+	g.func.check_neighbours();
+	g.func.set_state();
+	g.grid.update_grid();
 
 }
-
-
-
+}
 
