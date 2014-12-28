@@ -1,11 +1,9 @@
 
 var g = {
 
-
-
 config: {
 	running: false,
-	fps:5,
+	fps:30,
 	templates:{
 		dot:false,
 		glider:false
@@ -21,45 +19,64 @@ func:{
 		}
 	},
 
+wrap: function (x, min, max){ 
+	//if X is less than 0, return 500 + -10 or 510 + 0 
+	return x < 0 ? max + x : min
+},
+
+
+get_neighbour:function(x, y) {
+	if (g.grid[x] && g.grid[x][y]){
+		return g.grid[x][y].state
+	} else {
+		x = g.func.wrap(x, 0, 500);
+		y = g.func.wrap(y, 0, 500);
+		return g.grid[x][y].state
+	}
+},
 	check_neighbours: function(){
-		for (var x = 0; x < g.canvas.width -1; x += 10) {
-			for (var y = 0; y < g.canvas.height -1; y +=10) {
-				try {
+			// for x in xrange(canvas.width -1, 10)
+		for (var x = 0; x < g.canvas.width +10; x += 10) {
+				// for y in xrange(canvas.height -1, 10)
+			for (var y = 0; y < g.canvas.height +10; y +=10) {
 					g.grid[x][y].neighbours = 0
-					if (g.grid[x][y-10].state) {
+
+					if (g.func.get_neighbour(x, y-10)){
 						g.grid[x][y].neighbours += 1;
-					}
-					if (g.grid[x][y+10].state) {
+					};
+
+					if (g.func.get_neighbour(x, y+10)){
 						g.grid[x][y].neighbours += 1;
-					}
-					if (g.grid[x-10][y].state) {
+					};
+
+					if (g.func.get_neighbour(x-10, y)){
 						g.grid[x][y].neighbours += 1;
-					}
-					if (g.grid[x+10][y].state) {
+					};
+					if (g.func.get_neighbour(x+10, y)){
 						g.grid[x][y].neighbours += 1;
-					}
-					if (g.grid[x-10][y-10].state) {
+					}; 
+					if (g.func.get_neighbour(x-10, y-10)){
 						g.grid[x][y].neighbours += 1;
-					}
-					if (g.grid[x+10][y+10].state) {
+					};
+					if (g.func.get_neighbour(x+10, y+10)){
 						g.grid[x][y].neighbours += 1;
-					}
-					if (g.grid[x+10][y-10].state) {
+					};
+					if (g.func.get_neighbour(x+10, y-10)){
 						g.grid[x][y].neighbours += 1;
-					}
-					if (g.grid[x-10][y+10].state) {
+					};
+					if (g.func.get_neighbour(x-10, y+10)){
 						g.grid[x][y].neighbours += 1;
-					}
-				}	catch (e) {}
+					};
 			}
 		}
 	},
 
 	set_state: function(){
-		for (var x = 0; x < g.canvas.width -1; x += 10) {
-			for (var y = 0; y < g.canvas.height -1; y +=10) {
-				try 
-				{
+			// for x in xrange(canvas.width -1, 10)
+		for (var x = 0; x < g.canvas.width +10; x += 10) {
+				// for y in xrange(canvas.height -1, 10)
+			for (var y = 0; y < g.canvas.height +10; y +=10) {
+
 					if (g.grid[x][y].state) {
 						if (g.grid[x][y].neighbours < 2){
 							g.grid[x][y].state = false;
@@ -82,7 +99,6 @@ func:{
 							g.grid[x][y].age = 0;
 							}
 					}
-				} catch (e) {}
 			}
 		}
 	}
@@ -100,9 +116,9 @@ cell: function (state){
 
 grid: {
 	init:function(){
-		for (var x = 0; x < g.canvas.width -1; x += 10) {
+		for (var x = 0; x < g.canvas.width +10; x += 10) {
 			g.grid[x] = []
-			for (var y = 0; y < g.canvas.height -1; y +=10) {
+			for (var y = 0; y < g.canvas.height +10; y +=10) {
 				if (Math.random() < 0.5){
 					g.grid[x][y] = new g.cell(false)
 				}
@@ -116,8 +132,8 @@ grid: {
 	},
 
 	update_grid:function(){
-	for (var x = 0; x < g.canvas.width -1; x += 10) {
-		for (var y = 0; y < g.canvas.height -1; y +=10) {
+	for (var x = 0; x < g.canvas.width +10; x += 10) {
+		for (var y = 0; y < g.canvas.height +10; y +=10) {
 			if (g.grid[x][y].state) {
 				g.canvas.ctx.fillRect(x, y, 10, 10)
 			} else {
@@ -143,15 +159,16 @@ canvas: {
 	},
 
 	drawgrid:function(){
-		for (var x = 0.5; x < g.canvas.width-1; x += 10){
+		for (var x = 0.5; x < g.canvas.width +10; x += 10){
 			this.ctx.moveTo(x, 0);
 			this.ctx.lineTo(x, g.canvas.height);
 		}
-		for (var y = 0.5; y < g.canvas.height-1; y += 10){
+		for (var y = 0.5; y < g.canvas.height +10; y += 10){
 			this.ctx.moveTo(0, y);
 			this.ctx.lineTo(g.canvas.width, y);
 		}
 		this.ctx.strokeStyle = "black"
+		//strokes seem to be increasing in draw time over time. not sure why.
 		this.ctx.stroke();
 	}
 },
@@ -160,20 +177,21 @@ canvas: {
 
 init: function() {
 	g.canvas.init();
-	g.canvas.drawgrid();
+	//g.canvas.drawgrid();
 	g.func.check_template();
 	g.grid.init();
 	console.log(g.grid);
-	g._intervalId = setInterval(g.main, 1000 / g.config.fps);
-
-	
+	g.main();
 },
 
 main:function(){
-	g.func.check_neighbours();
-	g.func.set_state();
-	g.grid.update_grid();
-
+	 setTimeout(function() {
+	requestAnimationFrame(g.main);
+		g.func.check_neighbours();
+		g.func.set_state();
+		g.grid.update_grid();
+		// g.canvas.drawgrid();
+ }, 1000/g.config.fps)
 }
 }
 
