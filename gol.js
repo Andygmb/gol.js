@@ -3,7 +3,7 @@ var g = {
 
 config: {
 	running: false,
-	fps:30,
+	fps:15,
 	templates:{
 		dot:false,
 		glider:false
@@ -16,21 +16,38 @@ func:{
 			for (var template in g.config.templates) {
 				if (template) { console.log(template)}
 			}
-		}
+		}	
 	},
 
 wrap: function (x, min, max){ 
-	//if X is less than 0, return 500 + -10 or 510 + 0 
-	return x < 0 ? max + x : min
+
+	// -10, return 500 - 10 = 490
+	if (x < min) {
+		return max + x
+	}
+	// x = 0 return 500 - 10
+	else if (x === min) {
+		return max - 10
+	}
+	// x = 510 return 0 + 10 = 10
+	else if (x > max) {
+		return min + 10
+	}
+	// 490, 500 <= 500   
+	else if (x <= max){
+		return max % x 
+	}
+	// return x < 0 ? max + x : min
 },
+
 
 
 get_neighbour:function(x, y) {
 	if (g.grid[x] && g.grid[x][y]){
 		return g.grid[x][y].state
 	} else {
-		x = g.func.wrap(x, 0, 500);
-		y = g.func.wrap(y, 0, 500);
+		(g.grid[x]) ? x = x : x = g.func.wrap(x, 0, 500) ;
+		(g.grid[y]) ? y = y : y = g.func.wrap(y, 0, 500) ;
 		return g.grid[x][y].state
 	}
 },
@@ -119,7 +136,7 @@ grid: {
 		for (var x = 0; x < g.canvas.width +10; x += 10) {
 			g.grid[x] = []
 			for (var y = 0; y < g.canvas.height +10; y +=10) {
-				if (Math.random() < 0.5){
+				if (Math.random() < 0.95){
 					g.grid[x][y] = new g.cell(false)
 				}
 				else {
